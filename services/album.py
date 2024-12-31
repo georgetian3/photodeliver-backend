@@ -1,8 +1,7 @@
+from uuid import UUID
 from sqlalchemy import and_, delete, select
 from models.database import get_session
-from models.exceptions import UserNotAlbumOwnerError
-from models.photo import Album, AlbumID, NewAlbum
-from models.user import UserID
+from models.photo import Album, NewAlbum
 from services.utils import CrudResult
 
 
@@ -12,14 +11,14 @@ async def create_album(new_album: NewAlbum) -> Album:
     ...
     return album
 
-async def get_album_by_id(album_id: AlbumID) -> Album | None:
+async def get_album_by_id(album_id: UUID) -> Album | None:
     async with get_session() as session:
         return await session.get(Album, album_id)
 
 async def update_album(album: Album) -> None:
     ...
 
-async def delete_album(user_id: UserID, album_id: AlbumID) -> CrudResult:
+async def delete_album(album_id: UUID, user_id: UUID) -> CrudResult:
     async with get_session() as session:
         album = await session.get(Album, album_id)
         if not album:

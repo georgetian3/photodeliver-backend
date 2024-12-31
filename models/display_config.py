@@ -17,5 +17,5 @@ class BaseDisplayConfig(SQLModel, table=False):
     preview_height: int | None = Field(default=None)
     extra_info: dict | None = Field(default=None, sa_column=Column(JSON)) # extra information regarding this album, e.g. styling hints for displaying in frontend
 
-class DisplayConfig(BaseDisplayConfig):
+class DisplayConfig(BaseDisplayConfig, table=True):
     id: int | None = Field(primary_key=True)

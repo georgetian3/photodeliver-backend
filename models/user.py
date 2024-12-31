@@ -1,5 +1,7 @@
 from sqlmodel import Field, SQLModel
 
+from models.utils import UuidId
+
 class BaseUser(SQLModel, table=False):
     ...
 

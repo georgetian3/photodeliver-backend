@@ -1,5 +1,4 @@
-
-
+from uuid import UUID, uuid4
 from fastapi import APIRouter, HTTPException, status
 from apis.utils import create_docs
 import services.album
@@ -28,10 +27,11 @@ DELETE_ALBUM_403 = HTTPException(status.HTTP_403_FORBIDDEN, 'Cannot delete album
 
 @album_router.delete("/album/{album_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    responses=create_docs(DELETE_ALBUM_403, DELETE_ALBUM_404)
+    response_description="Album deleted successfully",
+    responses=create_docs(DELETE_ALBUM_403, DELETE_ALBUM_404),
 )
-async def delete_album(album_id: str):
-    result = await services.album.delete_album('asdf', album_id)
+async def delete_album(album_id: UUID):
+    result = await services.album.delete_album(album_id, uuid4())
     if result == CrudResult.DOES_NOT_EXIST:
         raise DELETE_ALBUM_404
     if result == CrudResult.NOT_AUTHORITZED:
