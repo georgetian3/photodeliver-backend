@@ -27,4 +27,4 @@ async def delete_album(album_id: UUID, user_id: UUID) -> CrudResult:
             return CrudResult.NOT_AUTHORITZED
         await session.delete()
         await session.commit()
-        return CrudResult.OK
+    return CrudResult.OK

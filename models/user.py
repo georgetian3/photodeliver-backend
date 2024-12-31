@@ -9,6 +9,7 @@ class User(BaseUser, UuidId, table=True):
     password_hash: str = Field(nullable=False, exclude=True)
     email: str = Field(unique=True)
     is_admin: bool = Field(default=False)
+    active: bool = Field(default=True)
 
 class NewUser(SQLModel, table=False):
     password: str = Field(nullable=False)
