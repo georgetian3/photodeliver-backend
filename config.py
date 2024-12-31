@@ -52,4 +52,4 @@ class ServerConfig:
 
 @dataclass
 class AuthConfig:
-    ADMIN_PASSWORD: str = get_env('ADMIN_PASSWORD')
+    ...

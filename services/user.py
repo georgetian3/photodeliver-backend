@@ -1,23 +1,19 @@
-import uuid
 
-from argon2 import PasswordHasher
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload
 
 from models.database import get_session
-from models.models import NewUser, User
+from models.user import NewUser, User
 
 
 
-async def create_user(new_user: NewUser) -> User:
-    user = User(
-        **new_user.model_dump(),
-        id=str(uuid.uuid4()),
-    )
-    async with get_session() as session:
-        session.add(user)
-        await session.commit()
-    return user
+# async def create_user(new_user: NewUser) -> User:
+#     user = User(
+#         **new_user.model_dump(),
+#         id=str(uuid.uuid4()),
+#     )
+#     async with get_session() as session:
+#         session.add(user)
+#         await session.commit()
+#     return user
 
 
 # async def get_all_users() -> list[User]:

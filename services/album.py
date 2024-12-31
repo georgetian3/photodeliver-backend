@@ -1,18 +1,31 @@
+from sqlalchemy import and_, delete, select
 from models.database import get_session
 from models.exceptions import UserNotAlbumOwnerError
-from models.models import Album, AlbumID, UserID
+from models.photo import Album, AlbumID, NewAlbum
+from models.user import UserID
+from services.utils import CrudResult
 
-async def modify_album_visibility(user_id: UserID, album_id: AlbumID, new_visibility: bool) -> None:
-    """
-    :param user_id: ID of user modifying the album
-    :param album_id: ID of album being modified
-    :param new_visibility: the new visibility of the album
-    :returns: `None`
-    :raises: `UserNotAlbumOwnerError` if the user is not the owner of the album
-    """
+
+
+async def create_album(new_album: NewAlbum) -> Album:
+    album = Album(**new_album.model_dump())
+    ...
+    return album
+
+async def get_album_by_id(album_id: AlbumID) -> Album | None:
+    async with get_session() as session:
+        return await session.get(Album, album_id)
+
+async def update_album(album: Album) -> None:
+    ...
+
+async def delete_album(user_id: UserID, album_id: AlbumID) -> CrudResult:
     async with get_session() as session:
         album = await session.get(Album, album_id)
+        if not album:
+            return CrudResult.DOES_NOT_EXIST
         if album.owner != user_id:
-            raise UserNotAlbumOwnerError()
-        album.visible = new_visibility
+            return CrudResult.NOT_AUTHORITZED
+        await session.delete()
         await session.commit()
+        return CrudResult.OK
