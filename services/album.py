@@ -1,7 +1,7 @@
 from uuid import UUID
 from sqlalchemy import and_, delete, select
 from models.database import get_session
-from models.photo import Album, NewAlbum
+from models.photo import Album, NewAlbum, PhotoVersion
 from services.utils import CrudResult
 
 
@@ -25,6 +25,12 @@ async def delete_album(album_id: UUID, user_id: UUID) -> CrudResult:
             return CrudResult.DOES_NOT_EXIST
         if album.owner != user_id:
             return CrudResult.NOT_AUTHORITZED
-        await session.delete()
+        paths = await session.execute(
+            select()
+        )
+        await session.delete(album)
         await session.commit()
     return CrudResult.OK
+
+async def delete_section(section_id: UUID, user_id: UUID):
+    ...

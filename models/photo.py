@@ -21,21 +21,24 @@ class Album(BaseAlbum, UuidId, table=True):
     time_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
     owner: UUID = Field(foreign_key="user.id", ondelete="CASCADE") # The user who created this album
 
-class AlbumSection(UuidId):
+class AlbumSection(UuidId, table=True):
     album_id: UUID = Field(foreign_key='album.id', ondelete="CASCADE")
     index: int = Field(nullable=False) # index of this section within an album
     name: str = Field(default='New Section')
 
 
 class BasePhoto(SQLModel):
+    section_id: str = Field(foreign_key="albumsection.id", ondelete="CASCADE") # the album to which this photo belongs
+
+class NewPhoto(SQLModel, table=False):
     ...
 
 class Photo(BasePhoto, UuidId, table=True):
     time_uploaded: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    section_id: str = Field(foreign_key="section.id", ondelete="CASCADE") # the album to which this photo belongs
     index: int = Field(nullable=False) # index of this photo within a section
     visibility: int = Field(default=PhotoVisbility.HIDDEN)
     original_filename: str = Field(nullable=False)
+
 
 class PhotoVersion(UuidId, table=True):
     photo_id: UUID = Field(foreign_key='photo.id', ondelete="CASCADE")
