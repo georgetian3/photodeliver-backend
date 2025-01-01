@@ -1,7 +1,7 @@
 from uuid import UUID
-from sqlalchemy import and_, delete, select
+from sqlalchemy import select
 from models.database import get_session
-from models.photo import Album, NewAlbum, PhotoVersion
+from models.photo import Album, NewAlbum, Photo, PhotoVersion
 from services.utils import CrudResult
 
 
@@ -10,6 +10,10 @@ async def create_album(new_album: NewAlbum) -> Album:
     album = Album(**new_album.model_dump())
     ...
     return album
+
+async def get_user_albums(user_id: UUID) -> list[Album]:
+    async with get_session() as session:
+        return (await session.execute(select(Album).where(Album.owner == user_id))).scalars()
 
 async def get_album_by_id(album_id: UUID) -> Album | None:
     async with get_session() as session:
@@ -26,7 +30,7 @@ async def delete_album(album_id: UUID, user_id: UUID) -> CrudResult:
         if album.owner != user_id:
             return CrudResult.NOT_AUTHORITZED
         paths = await session.execute(
-            select()
+            select(PhotoVersion).join(Photo)
         )
         await session.delete(album)
         await session.commit()

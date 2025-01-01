@@ -2,7 +2,6 @@
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
-from hashlib import sha512
 
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
@@ -28,7 +27,8 @@ class AlbumSection(UuidId, table=True):
 
 
 class BasePhoto(SQLModel):
-    section_id: str = Field(foreign_key="albumsection.id", ondelete="CASCADE") # the album to which this photo belongs
+    album_id: UUID = Field(foreign_key="album.id", ondelete="CASCADE")
+    section_id: UUID | None = Field(foreign_key="albumsection.id", ondelete="CASCADE") # the album to which this photo belongs
 
 class NewPhoto(SQLModel, table=False):
     ...

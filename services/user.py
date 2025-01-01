@@ -4,6 +4,7 @@ from uuid import UUID
 from models.database import get_session
 from models.user import NewUser, User
 from services.utils import CrudResult
+from argon2 import hash_password, verify_password
 
 async def set_user_active(user_id: UUID, active: bool) -> CrudResult:
     """
@@ -26,15 +27,15 @@ async def set_user_active(user_id: UUID, active: bool) -> CrudResult:
         await session.commit()
     return CrudResult.OK
 
-# async def create_user(new_user: NewUser) -> User:
-#     user = User(
-#         **new_user.model_dump(),
-#         id=str(uuid.uuid4()),
-#     )
-#     async with get_session() as session:
-#         session.add(user)
-#         await session.commit()
-#     return user
+async def create_user(new_user: NewUser) -> User:
+    user = User(
+        **new_user.model_dump(),
+        password_hash=hash_password(new_user.password)
+    )
+    async with get_session() as session:
+        session.add(user)
+        await session.commit()
+    return user
 
 
 # async def get_all_users() -> list[User]:
