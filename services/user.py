@@ -11,6 +11,7 @@ from fastapi_users.authentication import (
 )
 from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
 
+import config
 from models.database import get_session, get_user_db
 from models.user import User
 from services import logging
@@ -85,19 +86,18 @@ async def get_user_manager(user_db: SQLModelUserDatabaseAsync = Depends(get_user
     yield UserManager(user_db)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
-
+bearer_transport = BearerTransport(tokenUrl="auth/login")
 
 
 def get_redis_strategy() -> RedisStrategy:
     return RedisStrategy(
-        redis.asyncio.from_url("redis://localhost:6379", decode_responses=True),
+        redis.asyncio.from_url(f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}", decode_responses=True),
         lifetime_seconds=3600
     )
 
 
 auth_backend = AuthenticationBackend(
-    name="jwt",
+    name="auth",
     transport=bearer_transport,
     get_strategy=get_redis_strategy,
 )

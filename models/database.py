@@ -12,7 +12,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 import config
 from models.photo import *
-from models.user import User
+from models.user import OAuthAccount, User
 
 nest_asyncio.apply()
 
@@ -68,4 +68,4 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLModelUserDatabaseAsync(session, User)
+    yield SQLModelUserDatabaseAsync(session, User, OAuthAccount)

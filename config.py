@@ -41,9 +41,14 @@ DATABASE_USERNAME: str | None = get_env("DATABASE_USERNAME", None)
 DATABASE_PASSWORD: str | None = get_env("DATABASE_PASSWORD", None)
 DATABASE_DRIVERNAME: str | None = get_env("DATABASE_DRIVERNAME", None)
 
+REDIS_HOST: str = get_env("REDIS_HOST", "localhost")
+REDIS_PORT: int = int(get_env("REDIS_PORT", 6379))
 
 SERVER_PORT: int = int(get_env("SERVER_PORT", 8000))
 SERVER_WORKERS: int = int(get_env("SERVER_WORKERS", 1))
 
 ADMIN_EMAIL: str = get_env("ADMIN_EMAIL")
 ADMIN_PASSWORD: str = get_env("ADMIN_PASSWORD")
+
+OAUTH_GOOGLE_CLIENT_ID: str = get_env("OAUTH_GOOGLE_CLIENT_ID")
+OAUTH_GOOGLE_CLIENT_SECRET: str = get_env("OAUTH_GOOGLE_CLIENT_SECRET")
