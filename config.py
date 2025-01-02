@@ -35,21 +35,16 @@ def int_or_none(x: Any) -> int | None:
 load_dotenv()
 
 
-@dataclass
-class DatabaseConfig:
-    HOST: str | None = get_env("DATABASE_HOST", None)
-    PORT: int | None = int_or_none(get_env("DATABASE_PORT", None))
-    DATABASE: str | None = get_env("DATABASE_DATABASE", None)
-    USERNAME: str | None = get_env("DATABASE_USERNAME", None)
-    PASSWORD: str | None = get_env("DATABASE_PASSWORD", None)
-    DRIVERNAME: str | None = get_env("DATABASE_DRIVERNAME", None)
+DATABASE_HOST: str | None = get_env("DATABASE_HOST", None)
+DATABASE_PORT: int | None = int_or_none(get_env("DATABASE_PORT", None))
+DATABASE_NAME: str | None = get_env("DATABASE_NAME", None)
+DATABASE_USERNAME: str | None = get_env("DATABASE_USERNAME", None)
+DATABASE_PASSWORD: str | None = get_env("DATABASE_PASSWORD", None)
+DATABASE_DRIVERNAME: str | None = get_env("DATABASE_DRIVERNAME", None)
 
 
-@dataclass
-class ServerConfig:
-    PORT: int = int(get_env("SERVER_PORT", 8000))
-    WORKERS: int = int(get_env("SERVER_WORKERS", 1))
+SERVER_PORT: int = int(get_env("SERVER_PORT", 8000))
+SERVER_WORKERS: int = int(get_env("SERVER_WORKERS", 1))
 
-@dataclass
-class AuthConfig:
-    ...
+ADMIN_EMAIL: str = get_env("ADMIN_EMAIL")
+ADMIN_PASSWORD: str = get_env("ADMIN_PASSWORD")

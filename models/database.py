@@ -1,13 +1,15 @@
 import asyncio
-from dataclasses import asdict
 from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator
 
+from fastapi import Depends
+from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from config import DatabaseConfig
+import config
 from models.display_config import *
 from models.photo import *
 from models.user import *
@@ -17,12 +19,17 @@ nest_asyncio.apply()
 
 class Database:
 
-    def __init__(self, config: DatabaseConfig):
-        self._url = URL.create(**{k.lower(): v for k, v in asdict(config).items()})
-        self._engine = create_async_engine(self._url)
-        self._async_session_maker: sessionmaker = sessionmaker(
-            self._engine, class_=AsyncSession
+    def __init__(self):
+        self._url = URL.create(
+            drivername=config.DATABASE_DRIVERNAME,
+            username=config.DATABASE_USERNAME,
+            password=config.DATABASE_PASSWORD,
+            host=config.DATABASE_HOST,
+            port=config.DATABASE_PORT,
+            database=config.DATABASE_NAME,
         )
+        self._engine = create_async_engine(self._url)
+        self._async_session_maker = async_sessionmaker(self._engine, expire_on_commit=False)
 
     async def create(self):
         async with self._engine.begin() as conn:
@@ -36,8 +43,9 @@ class Database:
     def get_session(self) -> AsyncSession:
         return self._async_session_maker()
 
-_DATABASE = Database(DatabaseConfig())
+_DATABASE = Database()
 asyncio.run(_DATABASE.create())
+
 
 @asynccontextmanager
 async def get_session():
@@ -49,3 +57,12 @@ async def get_session():
         raise
     finally:
         await session.close()
+
+
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async with _DATABASE._async_session_maker() as session:
+        yield session
+
+
+async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+    yield SQLModelUserDatabaseAsync(session, User)

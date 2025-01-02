@@ -5,15 +5,16 @@ from models.photo import Album, NewAlbum, Photo, PhotoVersion
 from services.utils import CrudResult
 
 
-
-async def create_album(new_album: NewAlbum) -> Album:
-    album = Album(**new_album.model_dump())
-    ...
+async def create_album(new_album: NewAlbum, user_id: UUID) -> Album:
+    album = Album(**new_album.model_dump(), owner=user_id)
+    async with get_session() as session:
+        session.add(album)
+        await session.commit()
     return album
 
 async def get_user_albums(user_id: UUID) -> list[Album]:
     async with get_session() as session:
-        return (await session.execute(select(Album).where(Album.owner == user_id))).scalars()
+        return (await session.execute(select(Album).where(Album.owner==user_id))).scalars()
 
 async def get_album_by_id(album_id: UUID) -> Album | None:
     async with get_session() as session:

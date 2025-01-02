@@ -9,9 +9,9 @@ section_router = APIRouter()
 
 
 @section_router.get("/sections")
-async def get_sections(album_id: UUID) -> list[AlbumSection]:
+async def get_sections(album_id: UUID):
     ...
-
+    
 @section_router.put("/sections")
 async def create_section(album_id: UUID) -> None:
     ...

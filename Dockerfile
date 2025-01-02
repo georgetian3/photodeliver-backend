@@ -37,4 +37,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD uvicorn apis.apis:api --host=0.0.0.0 --port=8000
+CMD ["fastapi", "run", "apis", "--port", "8000"]

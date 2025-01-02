@@ -1,14 +1,19 @@
-from sqlmodel import Field, SQLModel
+from uuid import UUID
+from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
+from fastapi_users import schemas
 
-from models.utils import UuidId
 
-class BaseUser(SQLModel, table=False):
-    email: str = Field(unique=True)
+class User(SQLModelBaseUserDB, table=True):
+    ...
 
-class NewUser(BaseUser, table=False):
-    password: str = Field(nullable=False)
 
-class User(BaseUser, UuidId, table=True):
-    password_hash: str = Field(nullable=False, exclude=True)
-    is_admin: bool = Field(default=False)
-    active: bool = Field(default=True)
+class UserRead(schemas.BaseUser[UUID]):
+    pass
+
+
+class UserCreate(schemas.BaseUserCreate):
+    pass
+
+
+class UserUpdate(schemas.BaseUserUpdate):
+    pass
