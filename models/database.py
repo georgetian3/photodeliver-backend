@@ -1,7 +1,8 @@
 import asyncio
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
+import nest_asyncio
 from fastapi import Depends
 from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
 from sqlalchemy import URL
@@ -10,12 +11,11 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 import config
-from models.display_config import *
 from models.photo import *
-from models.user import *
+from models.user import User
 
-import nest_asyncio
 nest_asyncio.apply()
+
 
 class Database:
 
@@ -29,7 +29,9 @@ class Database:
             database=config.DATABASE_NAME,
         )
         self._engine = create_async_engine(self._url)
-        self._async_session_maker = async_sessionmaker(self._engine, expire_on_commit=False)
+        self._async_session_maker = async_sessionmaker(
+            self._engine, expire_on_commit=False
+        )
 
     async def create(self):
         async with self._engine.begin() as conn:
@@ -42,6 +44,7 @@ class Database:
 
     def get_session(self) -> AsyncSession:
         return self._async_session_maker()
+
 
 _DATABASE = Database()
 asyncio.run(_DATABASE.create())

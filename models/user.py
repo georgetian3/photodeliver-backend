@@ -1,10 +1,10 @@
 from uuid import UUID
-from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
+
 from fastapi_users import schemas
+from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
 
 
-class User(SQLModelBaseUserDB, table=True):
-    ...
+class User(SQLModelBaseUserDB, table=True): ...
 
 
 class UserRead(schemas.BaseUser[UUID]):

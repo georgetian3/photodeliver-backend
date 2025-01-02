@@ -1,15 +1,12 @@
-from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from apis.users import user_router
+
 from apis.albums import album_router
-from apis.sections import section_router
 from apis.photos import photo_router
+from apis.sections import section_router
 from apis.users import user_router
-from services.user import fastapi_users, auth_backend, current_active_user
-from models.user import User, UserRead, UserCreate, UserUpdate
-
-
+from models.user import UserCreate, UserRead, UserUpdate
+from services.user import auth_backend, fastapi_users
 
 api = FastAPI()
 
@@ -20,7 +17,7 @@ api.include_router(user_router, tags=["user"])
 
 
 api.include_router(
-    fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
+    fastapi_users.get_auth_router(auth_backend), prefix="/auth", tags=["auth"]
 )
 api.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
@@ -42,13 +39,6 @@ api.include_router(
     prefix="/users",
     tags=["users"],
 )
-
-
-@api.get("/authenticated-route")
-async def authenticated_route(user: User = Depends(current_active_user)):
-    return {"message": f"Hello {user.email}!"}
-
-
 
 """
 Simplify operation IDs so that generated API clients have simpler function
