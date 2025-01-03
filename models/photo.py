@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from enum import IntEnum
 from pathlib import Path
 from uuid import UUID
 
@@ -51,10 +52,23 @@ class Photo(BasePhoto, UuidId, table=True):
     visibility: int = Field(default=PhotoVisbility.HIDDEN)
 
 
+class SampleConfig(SQLModel):
+    quality: int | None = Field(default=None)
+    blur: float = Field(default=0.0, le=1.0, ge=0.0)
+    scale: float = Field(default=1.0, le=1.0, gt=0.0)
+    watermark_text: str | None = Field(default=None)
+    watermark_font_size: int = Field(default=200)
+    watermark_angle: int = Field(default=45)
+    watermark_color: int = Field(default=0xffffff)
+    watermark_opacity: float = Field(default=1.0, ge=0.0, le=1.0)
+    watermark_x: int | None = Field(default=None)
+    watermark_y: int | None = Field(default=None)
+    watermark_repeat: bool = Field(default=True)
+
+
 class BasePhotoVersion(SQLModel):
     quality: int | None = Field(default=None)
-    blur: bool = Field(default=False)
-    watermark_text: str | None = Field(default=None)
+    blur: float = Field(default=0, ge=0, le=1)
     preview_scale: float = Field(default=1.0)
     photo_id: UUID = Field(foreign_key="photo.id", ondelete="CASCADE")
 
@@ -62,8 +76,13 @@ class BasePhotoVersion(SQLModel):
 class NewPhotoVersion(BasePhotoVersion): ...
 
 
-class PhotoVersion(BasePhotoVersion, UuidId, table=True):
-    original: bool = Field(nullable=False)
+class VersionType(IntEnum):
+    ORIGINAL = 0
+    SAMPLE = 1
+    RESIZE = 2
+
+class PhotoVersion(BasePhotoVersion, UuidId, SampleConfig, table=True):
+    type: int = Field() # VersionType
     width: int = Field(nullable=False)
     height: int = Field(nullable=False)
     extra_info: dict | None = Field(

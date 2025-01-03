@@ -1,22 +1,23 @@
 from io import BytesIO
+from pathlib import Path
 
 from models.database import get_session
 from models.photo import NewPhoto, NewPhotoVersion, Photo, PhotoVersion
 
+from PIL.ImageFile import ImageFile
 
-async def watermark_photo(photo: Photo) -> None: ...
+from services.image import blur_image, resize_image, watermark_image
+from services.logging import get_logger
 
-
-async def compress_photo(photo: Photo) -> None: ...
-
-
-async def create_preview(photo: Photo) -> None:
-    await compress_photo(photo)
-    await watermark_photo(photo)
+logger = get_logger(__name__)
 
 
-async def create_previews() -> None: ...
-
+async def create_sample_photo(image: ImageFile, photo_version: PhotoVersion) -> ImageFile:
+    image = await resize_image(image, photo_version)
+    image = await blur_image(image, photo_version)
+    image = await watermark_image(image, photo_version)
+    return image
+    
 
 async def get_photo_dimensions() -> tuple[int, int]:
     return 0, 0
@@ -25,16 +26,15 @@ async def get_photo_dimensions() -> tuple[int, int]:
 async def create_photo_version(
     original: BytesIO, new_photo_version: NewPhotoVersion
 ) -> PhotoVersion:
-    return PhotoVersion()
+    photo_version = PhotoVersion(
+        **new_photo_version.model_dump(),
+    )
+    return photo_version
 
 async def create_photo(new_photo: NewPhoto) -> None:
     photo = Photo()
     width, height = await get_photo_dimensions()
-    photo_version = PhotoVersion(
-        original=True,
-        width=width,
-        height=height,
-    )
+    photo_version = await create_photo_version(BytesIO, NewPhotoVersion())
     async with get_session() as session:
         session.add(photo)
         session.add(photo_version)
@@ -47,6 +47,10 @@ async def strip_exif_metadata() -> None: ...
 async def create_originals() -> None:
     await strip_exif_metadata()
     ...
+
+
+
+
 
 
 async def get_previews() -> list[PhotoVersion]:
