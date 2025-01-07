@@ -6,16 +6,16 @@ from models.photo import NewPhoto, NewPhotoVersion, Photo, PhotoVersion
 
 from PIL.ImageFile import ImageFile
 
-from services.image import blur_image, resize_image, watermark_image
 from services.logging import get_logger
+from watermarkipy import blur, watermark
 
 logger = get_logger(__name__)
 
 
 async def create_sample_photo(image: ImageFile, photo_version: PhotoVersion) -> ImageFile:
-    image = await resize_image(image, photo_version)
-    image = await blur_image(image, photo_version)
-    image = await watermark_image(image, photo_version)
+    # image = await resize_image(image, photo_version)
+    # image = await blur_image(image, photo_version)
+    # image = watermark(image, photo_version)
     return image
     
 
