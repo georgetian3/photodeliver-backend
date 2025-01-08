@@ -1,10 +1,13 @@
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from models.photo import NewAlbum
+from models.user import User
 import services.album
 from apis.utils import create_docs
 from services.utils import CrudResult
+from services.user import current_active_verified_user
 
 album_router = APIRouter()
 
@@ -14,7 +17,9 @@ async def get_album(album_id: UUID): ...
 
 
 @album_router.put("/albums")
-async def create_album(): ...
+async def create_album(new_album: NewAlbum, user: User = Depends(current_active_verified_user)):
+    album = await services.album.create_album(new_album, user)
+    return album
 
 
 @album_router.post("/albums/{album_id}")

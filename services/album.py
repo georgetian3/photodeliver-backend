@@ -4,11 +4,12 @@ from sqlalchemy import select
 
 from models.database import get_session
 from models.photo import Album, NewAlbum
+from models.user import User
 from services.utils import CrudResult
 
 
-async def create_album(new_album: NewAlbum, user_id: UUID) -> Album:
-    album = Album(**new_album.model_dump(), owner=user_id)
+async def create_album(new_album: NewAlbum, user: User) -> Album:
+    album = Album(**new_album.model_dump(), owner=user.id)
     async with get_session() as session:
         session.add(album)
         await session.commit()

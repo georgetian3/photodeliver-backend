@@ -4,8 +4,11 @@ from fastapi_users import schemas
 from fastapi_users_db_sqlmodel import SQLModelBaseUserDB, SQLModelBaseOAuthAccount
 from sqlmodel import Relationship
 
+
 class User(SQLModelBaseUserDB, table=True):
-    oauth_accounts: list["OAuthAccount"] = Relationship(back_populates="user", sa_relationship_kwargs={"lazy": "joined"})
+    oauth_accounts: list["OAuthAccount"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "joined"}
+    )
 
 
 class OAuthAccount(SQLModelBaseOAuthAccount, table=True):

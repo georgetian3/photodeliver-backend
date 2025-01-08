@@ -91,8 +91,10 @@ bearer_transport = BearerTransport(tokenUrl="auth/login")
 
 def get_redis_strategy() -> RedisStrategy:
     return RedisStrategy(
-        redis.asyncio.from_url(f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}", decode_responses=True),
-        lifetime_seconds=3600
+        redis.asyncio.from_url(
+            f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}", decode_responses=True
+        ),
+        lifetime_seconds=3600,
     )
 
 

@@ -59,7 +59,7 @@ class SampleConfig(SQLModel):
     watermark_text: str | None = Field(default=None)
     watermark_font_size: int = Field(default=200)
     watermark_angle: int = Field(default=45)
-    watermark_color: int = Field(default=0xffffff)
+    watermark_color: int = Field(default=0xFFFFFF)
     watermark_opacity: float = Field(default=1.0, ge=0.0, le=1.0)
     watermark_x: int | None = Field(default=None)
     watermark_y: int | None = Field(default=None)
@@ -81,8 +81,9 @@ class VersionType(IntEnum):
     SAMPLE = 1
     RESIZE = 2
 
+
 class PhotoVersion(BasePhotoVersion, UuidId, SampleConfig, table=True):
-    type: int = Field() # VersionType
+    type: int = Field()  # VersionType
     width: int = Field(nullable=False)
     height: int = Field(nullable=False)
     extra_info: dict | None = Field(
@@ -91,4 +92,4 @@ class PhotoVersion(BasePhotoVersion, UuidId, SampleConfig, table=True):
 
     @property
     def path(self):
-        return Path(self.id)
+        return Path(str(self.id))

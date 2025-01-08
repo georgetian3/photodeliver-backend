@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from httpx_oauth.clients.google import GoogleOAuth2
 from httpx_oauth.clients.facebook import FacebookOAuth2
+from httpx_oauth.clients.github import GitHubOAuth2
 
 from apis.albums import album_router
 from apis.photos import photo_router
@@ -17,13 +18,45 @@ api.include_router(section_router, tags=["section"])
 api.include_router(photo_router, tags=["photo"])
 
 
-google_oauth_client = GoogleOAuth2(config.OAUTH_GOOGLE_CLIENT_ID, config.OAUTH_GOOGLE_CLIENT_SECRET)
+if None not in (config.OAUTH_GOOGLE_CLIENT_ID, config.OAUTH_GOOGLE_CLIENT_SECRET):
+    api.include_router(
+        fastapi_users.get_oauth_router(
+            GoogleOAuth2(
+                config.OAUTH_GOOGLE_CLIENT_ID, config.OAUTH_GOOGLE_CLIENT_SECRET
+            ),
+            auth_backend,
+            config.STATE_SECRET,
+        ),
+        prefix="/auth/google",
+        tags=["auth"],
+    )
 
-api.include_router(
-    fastapi_users.get_oauth_router(google_oauth_client, auth_backend, "SECRET"),
-    prefix="/auth/google",
-    tags=["auth"],
-)
+if None not in (config.OAUTH_FACEBOOK_CLIENT_ID, config.OAUTH_FACEBOOK_CLIENT_SECRET):
+    api.include_router(
+        fastapi_users.get_oauth_router(
+            FacebookOAuth2(
+                config.OAUTH_FACEBOOK_CLIENT_ID, config.OAUTH_FACEBOOK_CLIENT_SECRET,
+                ["https://www.googleapis.com/auth/userinfo.email"]
+            ),
+            auth_backend,
+            config.STATE_SECRET,
+        ),
+        prefix="/auth/facebook",
+        tags=["auth"],
+    )
+
+if None not in (config.OAUTH_GITHUB_CLIENT_ID, config.OAUTH_GITHUB_CLIENT_SECRET):
+    api.include_router(
+        fastapi_users.get_oauth_router(
+            GitHubOAuth2(
+                config.OAUTH_GITHUB_CLIENT_ID, config.OAUTH_GITHUB_CLIENT_SECRET, ["user:email"]
+            ),
+            auth_backend,
+            config.STATE_SECRET
+        ),
+        prefix="/auth/github",
+        tags=["auth"],
+    )
 
 api.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth", tags=["auth"]
