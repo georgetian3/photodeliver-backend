@@ -42,7 +42,7 @@ class BaseMedia(SQLModel):
         foreign_key="album.id", ondelete="CASCADE"
     )  # the album to which this media belongs
     section_id: UUID | None = Field(
-        foreign_key="albumsection.id", ondelete="CASCADE"
+        foreign_key="albumsection.id", default=None, ondelete="CASCADE"
     )  # the section to which this media belongs, can be null
     media_type: MediaType = Field(nullable=False)
     filename: str = Field(nullable=False)
@@ -88,7 +88,7 @@ class VersionType(IntEnum):
 
 
 class MediaVersion(BaseMediaVersion, UuidId, SampleConfig, table=True):
-    type: int = Field()  # VersionType
+    type: VersionType = Field(default=VersionType.ORIGINAL)  # VersionType
     width: int = Field(nullable=False)
     height: int = Field(nullable=False)
     extra_info: dict | None = Field(

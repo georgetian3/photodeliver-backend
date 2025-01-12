@@ -1,8 +1,8 @@
 
 from fastapi import APIRouter, Depends, UploadFile
 
-from apis.utils import create_docs
 import services.media
+from apis.utils import create_docs
 from models.media import NewMedia
 from models.user import User
 from services.user import current_active_verified_user

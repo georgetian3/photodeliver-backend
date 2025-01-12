@@ -6,7 +6,8 @@ import nest_asyncio
 from fastapi import Depends
 from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -28,8 +29,8 @@ class Database:
             database=config.DATABASE_NAME,
         )
         self._engine = create_async_engine(self._url)
-        self._async_session_maker = async_sessionmaker(
-            self._engine, expire_on_commit=False
+        self._async_session_maker = sessionmaker(
+            self._engine, class_=AsyncSession, expire_on_commit=False
         )
 
     async def create(self):

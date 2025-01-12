@@ -1,3 +1,4 @@
+import contextlib
 import uuid
 from uuid import UUID
 
@@ -9,11 +10,13 @@ from fastapi_users.authentication import (
     BearerTransport,
     RedisStrategy,
 )
+from fastapi_users.exceptions import UserAlreadyExists
 from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
+from sqlalchemy import select
 
 import config
-from models.database import get_session, get_user_db
-from models.user import User
+from models.database import get_async_session, get_session, get_user_db
+from models.user import User, UserCreate
 from services import logging
 from services.utils import CrudResult
 
@@ -49,16 +52,7 @@ async def get_user_by_id(user_id: UUID) -> User | None:
 
 async def get_user_by_email(email: str) -> User | None:
     async with get_session() as session:
-        return (await session.query(User).filter(User.email == email)).first()
-
-
-# async def get_all_users() -> list[User]:
-#     async with get_session() as session:
-#         return list(
-#             (
-#                 await session.execute(select(User).options(joinedload(User.tasks)))
-#             ).scalars()
-#         )
+        return (await session.exec(select(User).where(User.email == email))).scalars().first()
 
 
 
@@ -108,3 +102,26 @@ fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 current_active_user = fastapi_users.current_user(active=True)
 current_active_verified_user = fastapi_users.current_user(active=True, verified=True)
 current_superuser = fastapi_users.current_user(superuser=True)
+
+
+
+get_async_session_context = contextlib.asynccontextmanager(get_async_session)
+get_user_db_context = contextlib.asynccontextmanager(get_user_db)
+get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
+
+
+async def create_user(email: str, password: str, is_superuser: bool = False):
+    try:
+        async with get_async_session_context() as session:
+            async with get_user_db_context(session) as user_db:
+                async with get_user_manager_context(user_db) as user_manager:
+                    user = await user_manager.create(
+                        UserCreate(
+                            email=email, password=password, is_superuser=is_superuser
+                        )
+                    )
+                    print(f"User created {user}")
+                    return user
+    except UserAlreadyExists:
+        print(f"User {email} already exists")
+        raise

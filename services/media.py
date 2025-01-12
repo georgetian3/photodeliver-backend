@@ -3,10 +3,11 @@ from io import BytesIO
 from fastapi import UploadFile
 from PIL.ImageFile import ImageFile
 
-from models.media import NewMedia, NewMediaVersion, Media, MediaVersion, VersionType
+from models.media import Media, MediaVersion, NewMedia, NewMediaVersion
 from models.user import User
 from services.logging import get_logger
 from services.storage_backend import STORAGE_BACKEND
+from services.tasks import process_new_media
 
 logger = get_logger(__name__)
 
@@ -35,11 +36,10 @@ async def create_media_version(
 
 class MediaFileMetadataMismatch(Exception): ...
 
-async def postprocess_uploaded_media():
-    media_version = MediaVersion(type=VersionType.ORIGINAL.value)
 
 
-async def upload_medias(media_files: list[UploadFile], new_media: list[NewMedia], user: User) -> None:
+
+async def upload_media(media_files: list[UploadFile], new_media: list[NewMedia], user: User) -> None:
     # TODO: Check user storage limits etc?
 
     # check 1-1 relationship
@@ -58,11 +58,14 @@ async def upload_medias(media_files: list[UploadFile], new_media: list[NewMedia]
     }
     # update index
 
+
     # create `media_version` ids without saving to DB, will do so in celery job
     media_versions = [MediaVersion() for _ in media_files]
     # write files based on ids
-    STORAGE_BACKEND.write(media_files, [media_version.path for media_version in media_versions])
+    await STORAGE_BACKEND.write(media_files, [media_version.path for media_version in media_versions])
 
+    for media_version in media_versions:
+        process_new_media.delay(media_version)
     # TODO: enqueue jobs based on `media_version` ids
     
     return
