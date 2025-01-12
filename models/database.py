@@ -11,14 +11,13 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 import config
-from models.photo import *
+from models.media import *
 from models.user import OAuthAccount, User
 
 nest_asyncio.apply()
 
 
 class Database:
-
     def __init__(self):
         self._url = URL.create(
             drivername=config.DATABASE_DRIVERNAME,

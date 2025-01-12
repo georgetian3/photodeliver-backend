@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from httpx_oauth.clients.google import GoogleOAuth2
 from httpx_oauth.clients.facebook import FacebookOAuth2
 from httpx_oauth.clients.github import GitHubOAuth2
+from httpx_oauth.clients.google import GoogleOAuth2
 
-from apis.albums import album_router
-from apis.photos import photo_router
-from apis.sections import section_router
 import config
+from apis.albums import album_router
+from apis.media import media_router
+from apis.sections import section_router
 from models.user import UserCreate, UserRead, UserUpdate
 from services.user import auth_backend, fastapi_users
 
@@ -15,7 +15,7 @@ api = FastAPI()
 
 api.include_router(album_router, tags=["album"])
 api.include_router(section_router, tags=["section"])
-api.include_router(photo_router, tags=["photo"])
+api.include_router(media_router, tags=["media"])
 
 
 if None not in (config.OAUTH_GOOGLE_CLIENT_ID, config.OAUTH_GOOGLE_CLIENT_SECRET):
@@ -25,7 +25,7 @@ if None not in (config.OAUTH_GOOGLE_CLIENT_ID, config.OAUTH_GOOGLE_CLIENT_SECRET
                 config.OAUTH_GOOGLE_CLIENT_ID, config.OAUTH_GOOGLE_CLIENT_SECRET
             ),
             auth_backend,
-            config.STATE_SECRET,
+            config.SECRET,
         ),
         prefix="/auth/google",
         tags=["auth"],
@@ -35,11 +35,12 @@ if None not in (config.OAUTH_FACEBOOK_CLIENT_ID, config.OAUTH_FACEBOOK_CLIENT_SE
     api.include_router(
         fastapi_users.get_oauth_router(
             FacebookOAuth2(
-                config.OAUTH_FACEBOOK_CLIENT_ID, config.OAUTH_FACEBOOK_CLIENT_SECRET,
-                ["https://www.googleapis.com/auth/userinfo.email"]
+                config.OAUTH_FACEBOOK_CLIENT_ID,
+                config.OAUTH_FACEBOOK_CLIENT_SECRET,
+                ["https://www.googleapis.com/auth/userinfo.email"],
             ),
             auth_backend,
-            config.STATE_SECRET,
+            config.SECRET,
         ),
         prefix="/auth/facebook",
         tags=["auth"],
@@ -49,10 +50,12 @@ if None not in (config.OAUTH_GITHUB_CLIENT_ID, config.OAUTH_GITHUB_CLIENT_SECRET
     api.include_router(
         fastapi_users.get_oauth_router(
             GitHubOAuth2(
-                config.OAUTH_GITHUB_CLIENT_ID, config.OAUTH_GITHUB_CLIENT_SECRET, ["user:email"]
+                config.OAUTH_GITHUB_CLIENT_ID,
+                config.OAUTH_GITHUB_CLIENT_SECRET,
+                ["user:email"],
             ),
             auth_backend,
-            config.STATE_SECRET
+            config.SECRET,
         ),
         prefix="/auth/github",
         tags=["auth"],

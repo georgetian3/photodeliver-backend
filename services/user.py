@@ -61,12 +61,11 @@ async def get_user_by_email(email: str) -> User | None:
 #         )
 
 
-SECRET = "SECRET"
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = SECRET
-    verification_token_secret = SECRET
+    reset_password_token_secret = config.SECRET
+    verification_token_secret = config.SECRET
 
     async def on_after_register(self, user: User, request: Request | None = None):
         print(f"User {user.id} has registered.")

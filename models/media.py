@@ -1,18 +1,18 @@
 from datetime import UTC, datetime
-from enum import IntEnum
+from enum import Enum, IntEnum
 from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
-from models.display_config import PhotoVisbility
+from models.display_config import MediaVisibility
 from models.utils import UuidId
 
 
 class BaseAlbum(SQLModel):
     name: str = Field(
-        default_factory=lambda: f"New Album {datetime.now().strftime("%y-%m-%d")}"
+        default_factory=lambda: f"New Album {datetime.now().strftime('%y-%m-%d')}"
     )
 
 
@@ -33,24 +33,29 @@ class AlbumSection(UuidId, table=True):
     name: str = Field(default="New Section")
 
 
-class BasePhoto(SQLModel):
+class MediaType(Enum):
+    PHOTO = "photo"
+    VIDEO = "video"
+
+class BaseMedia(SQLModel):
     album_id: UUID = Field(
         foreign_key="album.id", ondelete="CASCADE"
-    )  # the album to which this photo belongs
+    )  # the album to which this media belongs
     section_id: UUID | None = Field(
         foreign_key="albumsection.id", ondelete="CASCADE"
-    )  # the section to which this photo belongs, can be null
+    )  # the section to which this media belongs, can be null
+    media_type: MediaType = Field(nullable=False)
     filename: str = Field(nullable=False)
 
 
-class NewPhoto(BasePhoto): ...
+class NewMedia(BaseMedia): ...
 
 
-class Photo(BasePhoto, UuidId, table=True):
+class Media(BaseMedia, UuidId, table=True):
     time_uploaded: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    index: int = Field(nullable=False)  # index of this photo within a section
-    visibility: int = Field(default=PhotoVisbility.HIDDEN)
-
+    index: int = Field(nullable=False)  # index of this media within a section
+    visibility: MediaVisibility = Field(default=MediaVisibility.HIDDEN)
+    processing: bool = Field(nullable=False)
 
 class SampleConfig(SQLModel):
     quality: int | None = Field(default=None)
@@ -66,14 +71,14 @@ class SampleConfig(SQLModel):
     watermark_repeat: bool = Field(default=True)
 
 
-class BasePhotoVersion(SQLModel):
+class BaseMediaVersion(SQLModel):
     quality: int | None = Field(default=None)
     blur: float = Field(default=0, ge=0, le=1)
     preview_scale: float = Field(default=1.0)
-    photo_id: UUID = Field(foreign_key="photo.id", ondelete="CASCADE")
+    media_id: UUID = Field(foreign_key="media.id", ondelete="CASCADE")
 
 
-class NewPhotoVersion(BasePhotoVersion): ...
+class NewMediaVersion(BaseMediaVersion): ...
 
 
 class VersionType(IntEnum):
@@ -82,7 +87,7 @@ class VersionType(IntEnum):
     RESIZE = 2
 
 
-class PhotoVersion(BasePhotoVersion, UuidId, SampleConfig, table=True):
+class MediaVersion(BaseMediaVersion, UuidId, SampleConfig, table=True):
     type: int = Field()  # VersionType
     width: int = Field(nullable=False)
     height: int = Field(nullable=False)

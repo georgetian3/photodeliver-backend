@@ -50,7 +50,7 @@ SERVER_WORKERS: int = int(get_env("SERVER_WORKERS", 1))
 ADMIN_EMAIL: str = get_env("ADMIN_EMAIL")
 ADMIN_PASSWORD: str = get_env("ADMIN_PASSWORD")
 
-STATE_SECRET: str = get_env("STATE_SECRET")
+SECRET: str = get_env("SECRET")
 
 OAUTH_GOOGLE_CLIENT_ID: str | None = get_env("OAUTH_GOOGLE_CLIENT_ID", None)
 OAUTH_GOOGLE_CLIENT_SECRET: str | None = get_env("OAUTH_GOOGLE_CLIENT_SECRET", None)
@@ -62,3 +62,5 @@ OAUTH_GITHUB_CLIENT_ID: str | None = get_env("OAUTH_GITHUB_CLIENT_ID", None)
 OAUTH_GITHUB_CLIENT_SECRET: str | None = get_env("OAUTH_GITHUB_CLIENT_SECRET", None)
 
 CHUNK_SIZE: int = int(get_env("CHUNK_SIZE", 1024 * 1024))
+
+STORAGE_BACKEND: str = get_env("STORAGE_BACKEND", "local")

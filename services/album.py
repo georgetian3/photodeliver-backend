@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from models.database import get_session
-from models.photo import Album, NewAlbum
+from models.media import Album, NewAlbum
 from models.user import User
 from services.utils import CrudResult
 
@@ -38,7 +38,6 @@ async def delete_album(album_id: UUID, user_id: UUID) -> CrudResult:
             return CrudResult.DOES_NOT_EXIST
         if album.owner != user_id:
             return CrudResult.NOT_AUTHORITZED
-        # paths = await session.exec(select(PhotoVersion).join(Photo))
         await session.delete(album)
         await session.commit()
     return CrudResult.OK

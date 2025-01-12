@@ -1,5 +1,6 @@
-[tool.isort]
-profile = "black"
-
 [tool.mypy]
 exclude = [".venv"]
+
+[tool.ruff]
+
+extend-select = ["I"]

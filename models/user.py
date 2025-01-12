@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi_users import schemas
-from fastapi_users_db_sqlmodel import SQLModelBaseUserDB, SQLModelBaseOAuthAccount
+from fastapi_users_db_sqlmodel import SQLModelBaseOAuthAccount, SQLModelBaseUserDB
 from sqlmodel import Relationship
 
 
